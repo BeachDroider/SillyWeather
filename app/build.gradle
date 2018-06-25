@@ -1,0 +1,84 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "com.example.foad.sillyweather"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+
+    buildTypes {
+
+        def props = new Properties()
+        file("keys.properties").withInputStream { props.load(it) }
+        def api_key = props.getProperty("api_key")
+
+
+        debug {
+            buildConfigField("String", "SERVER_URL", '"https://api.openweathermap.org/"')
+            buildConfigField("String", "DB_NAME", '"silly_weather.db"')
+            buildConfigField("String", "API_KEY", api_key)
+            buildConfigField("int", "FORECAST_ITEM_COUNT", '8')
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "SERVER_URL", '"https://api.openweathermap.org/"')
+            buildConfigField("String", "DB_NAME", '"silly_weather.db"')
+            buildConfigField("String", "API_KEY", api_key)
+            buildConfigField("int", "FORECAST_ITEM_COUNT", '8')
+
+
+
+
+        }
+    }
+}
+
+dependencies {
+    def dagger_version = "2.15"
+    def lifecycle_version = "1.1.1"
+    def retrofit_version = "2.4.0"
+    def okhttp_version = "3.10.0"
+    def supportlib_version = "27.1.1"
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    //AAC
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+    annotationProcessor "android.arch.lifecycle:compiler:$lifecycle_version"
+    implementation "android.arch.persistence.room:runtime:$lifecycle_version"
+    annotationProcessor "android.arch.persistence.room:compiler:$lifecycle_version"
+
+    //Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+
+    //Dagger
+    implementation "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+
+    implementation "com.android.support:appcompat-v7:$supportlib_version"
+    implementation "com.android.support:recyclerview-v7:$supportlib_version"
+
+}
+repositories {
+    mavenCentral()
+}

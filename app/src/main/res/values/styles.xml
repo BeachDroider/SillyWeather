@@ -1,0 +1,19 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="current_weather_date_text">
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
+    <style name="current_weather_temperature_text">
+        <item name="android:textSize">@dimen/text_large</item>
+    </style>
+
+</resources>

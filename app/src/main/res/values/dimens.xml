@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <dimen name="current_weather_list_item_height">256dp</dimen>
+    <dimen name="forecast_weather_list_item_height">72dp</dimen>
+    <dimen name="forecast_default_horizontal_padding">24dp</dimen>
+    <dimen name="forecast_default_vertical_padding">12dp</dimen>
+    <dimen name="forecast_icon_horizontal_margin">24dp</dimen>
+    <dimen name="current_vertical_guideline">32dp</dimen>
+    <dimen name="current_horizontal_guideline">32dp</dimen>
+
+    <dimen name="text_large">64sp</dimen>
+    <dimen name="text_medium">20sp</dimen>
+</resources>
