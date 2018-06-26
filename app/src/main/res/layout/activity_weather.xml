@@ -4,14 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.weather.MainActivity">
+    tools:context=".ui.weather.WeatherActivity">
+
 
     <FrameLayout
-        android:id="@+id/container_city"
+        android:id="@+id/container_weather"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </FrameLayout>
-
+        android:layout_height="match_parent" />
 
 </FrameLayout>

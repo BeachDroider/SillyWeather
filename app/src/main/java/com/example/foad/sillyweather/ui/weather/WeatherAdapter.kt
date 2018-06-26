@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.current_weather_item.view.*
 import kotlinx.android.synthetic.main.forecast_weather_item.view.*
 import kotlin.math.roundToInt
 
-class WeatherAdapter(private val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var currentWeatherData: CurrentWeatherResponse? = null
         set(data) {
@@ -63,8 +63,8 @@ class WeatherAdapter(private val context: Context) : RecyclerView.Adapter<Recycl
                 tv_current_temp.text = data.main.temp.roundToInt().toString() + " \u2103"
                 tv_current_city.text = data.name
                 tv_current_date.text = DateFormatter.convertEpochToString(data.dt)
-                tv_current_description.text = data.weather[0]?.description
-                iv_current_icon.setImageResource(getLocalIconResource(data.weather[0].icon))
+                tv_current_description.text = data.weather[0].description
+                iv_current_icon.setImageResource(getLocalIconResource(context, data.weather[0].icon))
                 itemView.pb_current.visibility = GONE
             }
         }
@@ -79,14 +79,13 @@ class WeatherAdapter(private val context: Context) : RecyclerView.Adapter<Recycl
                 tv_forecast_max.text = forecastWeatherResponse.temp.max.roundToInt().toString()
                 tv_forecast_description.text = forecastWeatherResponse.weather[0].main
                 tv_forecast_date.text = DateFormatter.convertEpochToString(forecastWeatherResponse.dt)
-                iv_forecast_icon.setImageResource(getLocalIconResource(forecastWeatherResponse.weather[0].icon))
+                iv_forecast_icon.setImageResource(getLocalIconResource(context, forecastWeatherResponse.weather[0].icon))
                 pb_forecast.visibility = GONE
             }
         }
     }
 
-    private fun getLocalIconResource(iconNameOnServer: String) : Int {
-
+    private fun getLocalIconResource(context: Context, iconNameOnServer: String) : Int {
         val resId = context.resources.getIdentifier("ic_$iconNameOnServer", "drawable", context.packageName)
         return if (resId != 0) resId else context.resources.getIdentifier("ic_na", "drawable", context.packageName)
     }
