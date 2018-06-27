@@ -4,6 +4,8 @@ import android.app.Application
 import android.arch.persistence.room.Room
 import com.example.foad.sillyweather.BuildConfig
 import com.example.foad.sillyweather.api.OpenWeatherMapService
+import com.example.foad.sillyweather.db.CurrentWeatherResponseDao
+import com.example.foad.sillyweather.db.ForecastWeatherResponseDao
 import com.example.foad.sillyweather.db.SillyWeatherDb
 import dagger.Module
 import dagger.Provides
@@ -31,7 +33,20 @@ class AppModule {
         return Room
                 .databaseBuilder(application, SillyWeatherDb::class.java, BuildConfig.DB_NAME)
                 .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
                 .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideCurrentWeatherDao(sillyWeatherDb: SillyWeatherDb): CurrentWeatherResponseDao {
+        return sillyWeatherDb.currentWeatherDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideForecastWeatherDao(sillyWeatherDb: SillyWeatherDb): ForecastWeatherResponseDao {
+        return sillyWeatherDb.forecastWeatherDao()
     }
 
 }

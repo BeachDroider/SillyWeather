@@ -61,9 +61,13 @@ dependencies {
 
     //AAC
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
-    annotationProcessor "android.arch.lifecycle:compiler:$lifecycle_version"
+    kapt "android.arch.lifecycle:compiler:$lifecycle_version"
+    ///////////?SDFSDFS?DFSDFSDFSDF up here it was implementation and changed it to kapt
     implementation "android.arch.persistence.room:runtime:$lifecycle_version"
-    annotationProcessor "android.arch.persistence.room:compiler:$lifecycle_version"
+    kapt "android.arch.persistence.room:compiler:$lifecycle_version"
+    implementation "android.arch.lifecycle:reactivestreams:$lifecycle_version"
+
+
 
     //Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
