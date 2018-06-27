@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity(), CityFragment.CitySelectionListener {
                 startActivity(this)
             }
         } else {
-            weatherFragment?.selectCity(city)
+            supportFragmentManager.beginTransaction().replace(R.id.container_weather, WeatherFragment.newInstance(city), WEATHER_FRAGMENT_TAG).commit()
         }
     }
 

@@ -1,8 +1,8 @@
 package com.example.foad.sillyweather.di
 
 import android.app.Application
-import com.example.foad.sillyweather.ui.weather.MainActivity
-import com.example.foad.sillyweather.ui.weather.WeatherFragment
+import com.example.foad.sillyweather.api.OpenWeatherMapService
+import com.example.foad.sillyweather.ui.weather.WeatherViewModel
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -14,9 +14,10 @@ import javax.inject.Singleton
         ]
 )
 interface AppComponent {
+    fun application(): Application
+    fun openWeatherMapService(): OpenWeatherMapService
 
-//    fun inject(mainActivity: MainActivity)
-    fun inject(weatherFragment: WeatherFragment)
+    fun inject(weatherViewModel: WeatherViewModel)
 
     @Component.Builder
     interface Builder {
