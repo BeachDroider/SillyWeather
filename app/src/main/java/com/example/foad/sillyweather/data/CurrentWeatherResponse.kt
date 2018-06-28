@@ -7,6 +7,7 @@ import android.arch.persistence.room.TypeConverters
 
 @Entity(tableName = "currentWeatherResponses", primaryKeys =["name"])
 data class CurrentWeatherResponse(
+        val timestamp: Long,
         val weather: List<Weather>,
         @Embedded
         val main: Main,
