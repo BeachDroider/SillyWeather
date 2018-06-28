@@ -10,31 +10,31 @@
         android:id="@+id/btn_tehran"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="tehran"/>
+        android:text="Tehran"/>
 
     <Button
         android:id="@+id/btn_singapore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="singapore"/>
+        android:text="Singapore"/>
 
     <Button
         android:id="@+id/btn_sydney"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="sydney"/>
+        android:text="Sydney"/>
 
     <Button
         android:id="@+id/btn_vancouver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="vancouver"/>
+        android:text="Vancouver"/>
 
     <Button
         android:id="@+id/btn_paris"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="paris"/>
+        android:text="Paris"/>
 
 
 

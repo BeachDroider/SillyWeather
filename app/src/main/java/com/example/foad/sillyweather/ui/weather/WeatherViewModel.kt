@@ -58,7 +58,7 @@ class WeatherViewModel(application: Application, val city: String?) : AndroidVie
                     object : Callback<ForecastWeatherResponseWrapper> {
                         override fun onResponse(call: Call<ForecastWeatherResponseWrapper>?, response: Response<ForecastWeatherResponseWrapper>?) {
                             val forecastWeatherResponse = response?.body()
-                            forecastWeather?.value =forecastWeatherResponse
+                            forecastWeather?.value = forecastWeatherResponse
                             bar(forecastWeatherResponse)
                         }
 
@@ -95,27 +95,44 @@ class WeatherViewModel(application: Application, val city: String?) : AndroidVie
         }
     }
 
-    fun foo(currentWeatherResponse: CurrentWeatherResponse?){
+    fun foo(currentWeatherResponse: CurrentWeatherResponse?) {
         currentWeatherResponse?.let {
             currentWeatherDao.insert(it)
 
         }
         city?.let {
-            currentWeatherDao.getCurrentWeather(it).observeForever(Observer {
-                Log.i("9999", currentWeatherResponse.toString())
-            })
+            currentWeatherDao.getCurrentWeather(it).let { livedata ->
+                livedata.observeForever(
+                        object : Observer<CurrentWeatherResponse> {
+                            override fun onChanged(t: CurrentWeatherResponse?) {
+                                Log.i("9999", t.toString())
+                                livedata.removeObserver(this)
+                            }
+                        }
+                )
+            }
+
         }
 
     }
 
-    fun bar(forecastWeatherResponseWrapper: ForecastWeatherResponseWrapper?){
+    fun bar(forecastWeatherResponseWrapper: ForecastWeatherResponseWrapper?) {
         forecastWeatherResponseWrapper?.let {
             forecastWeatherDao.insert(it)
         }
         city?.let {
-            forecastWeatherDao.getForecastWeather(it).observeForever(Observer {
-                Log.i("9999", forecastWeatherResponseWrapper.toString())
-            })
+            forecastWeatherDao.getForecastWeather(it).let { livedata ->
+
+                livedata.observeForever(
+                        object : Observer<ForecastWeatherResponseWrapper> {
+                            override fun onChanged(t: ForecastWeatherResponseWrapper?) {
+                                Log.i("9999", t.toString())
+                                livedata.removeObserver(this)
+                            }
+                        }
+                )
+            }
+
         }
 
     }
