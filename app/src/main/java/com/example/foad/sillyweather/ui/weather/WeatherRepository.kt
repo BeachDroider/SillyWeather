@@ -1,6 +1,5 @@
 package com.example.foad.sillyweather.ui.weather
 
-import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.util.Log
@@ -20,28 +19,23 @@ class WeatherRepository @Inject constructor(val service: OpenWeatherMapService
                                             , val forecastWeatherDao: ForecastWeatherResponseDao
                                             , @Named("city") val city: String?) {
 
-    private var currentWeather: MutableLiveData<CurrentWeatherResponse>? = null
-    private var forecastWeather: MutableLiveData<ForecastWeatherResponseWrapper>? = null
-
-    fun getCurrentWeather(): LiveData<CurrentWeatherResponse>? {
-
-        if (currentWeather == null) {
-            currentWeather = MutableLiveData()
-            loadCurrent()
+    var currentWeather: MutableLiveData<CurrentWeatherResponse>? = null
+        get() {
+            if (field == null) {
+                field = MutableLiveData()
+                loadCurrent()
+            }
+            return field
         }
 
-        return currentWeather
-    }
-
-    fun getForecastWeather(): LiveData<ForecastWeatherResponseWrapper>? {
-
-        if (forecastWeather == null) {
-            forecastWeather = MutableLiveData()
-            loadForecast()
+    var forecastWeather: MutableLiveData<ForecastWeatherResponseWrapper>? = null
+        get() {
+            if (field == null) {
+                field = MutableLiveData()
+                loadForecast()
+            }
+            return field
         }
-
-        return forecastWeather
-    }
 
     fun loadForecast() {
         city?.let {

@@ -12,11 +12,11 @@ class WeatherViewModel(
 
     var currentWeather: LiveData<CurrentWeatherResponse>? = null
         get() {
-            return weatherRepository.getCurrentWeather()
+            return weatherRepository.currentWeather
         }
     var forecastWeather: LiveData<ForecastWeatherResponseWrapper>? = null
         get() {
-            return weatherRepository.getForecastWeather()
+            return weatherRepository.forecastWeather
         }
 
     class Factory(val application: Application, val repo: WeatherRepository) : ViewModelProvider.NewInstanceFactory() {
