@@ -14,5 +14,5 @@ interface CurrentWeatherResponseDao {
     fun insert(currentWeather: CurrentWeatherResponse)
 
     @Query("SELECT * FROM currentWeatherResponses WHERE name = :city")
-    fun getCurrentWeather(city: String) : LiveData<CurrentWeatherResponse>
+    fun getCurrentWeather(city: String) : CurrentWeatherResponse?
 }

@@ -24,10 +24,9 @@ class FragmentModule {
         return fragment.arguments?.getString(Constants.WEATHER_FRAGMENT_KEY_CITY)
     }
 
-    @FragmentScope
-    @Provides
-    fun provideFactory(application: Application, repo: WeatherRepository): WeatherViewModel.Factory {
-        return WeatherViewModel.Factory(application, repo)
-    }
+//    @Provides
+//    fun provideFactory(application: Application, repo: WeatherRepository): WeatherViewModel.Factory {
+//        return WeatherViewModel.Factory(application, repo)
+//    }
 
 }

@@ -14,6 +14,6 @@ interface ForecastWeatherResponseDao {
     fun insert(forecastWeatherResponseWrapper: ForecastWeatherResponseWrapper)
 
     @Query("SELECT * FROM forecastWeatherResponseWrappers WHERE name = :city")
-    fun getForecastWeather(city: String) : LiveData<ForecastWeatherResponseWrapper>
+    fun getForecastWeather(city: String) : ForecastWeatherResponseWrapper
 
 }

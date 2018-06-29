@@ -29,6 +29,8 @@ android {
             buildConfigField("String", "DB_NAME", '"silly_weather.db"')
             buildConfigField("String", "API_KEY", api_key)
             buildConfigField("int", "FORECAST_ITEM_COUNT", '8')
+            buildConfigField("int", "CACHE_TIMEOUT_SECS", '60')
+
         }
         release {
             minifyEnabled false
@@ -37,6 +39,8 @@ android {
             buildConfigField("String", "DB_NAME", '"silly_weather.db"')
             buildConfigField("String", "API_KEY", api_key)
             buildConfigField("int", "FORECAST_ITEM_COUNT", '8')
+            buildConfigField("int", "CACHE_TIMEOUT_SECS", '60')
+
 
 
         }

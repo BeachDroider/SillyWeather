@@ -11,7 +11,7 @@ import com.example.foad.sillyweather.BuildConfig
 import com.example.foad.sillyweather.R
 import com.example.foad.sillyweather.data.CurrentWeatherResponse
 import com.example.foad.sillyweather.data.ForecastWeatherResponseWrapper
-import com.example.foad.sillyweather.util.DateFormatter
+import com.example.foad.sillyweather.util.util
 import kotlinx.android.synthetic.main.current_weather_item.view.*
 import kotlinx.android.synthetic.main.forecast_weather_item.view.*
 import kotlin.math.roundToInt
@@ -62,7 +62,7 @@ class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             with(itemView) {
                 tv_current_temp.text = data.main.temp.roundToInt().toString() + " \u2103"
                 tv_current_city.text = data.name
-                tv_current_date.text = DateFormatter.convertEpochToString(data.dt)
+                tv_current_date.text = util.convertEpochToString(data.dt)
                 tv_current_description.text = data.weather[0].description
                 iv_current_icon.setImageResource(getLocalIconResource(context, data.weather[0].icon))
                 itemView.pb_current.visibility = GONE
@@ -78,7 +78,7 @@ class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 tv_forecast_min.text = forecastWeatherResponse.temp.min.roundToInt().toString()
                 tv_forecast_max.text = forecastWeatherResponse.temp.max.roundToInt().toString()
                 tv_forecast_description.text = forecastWeatherResponse.weather[0].main
-                tv_forecast_date.text = DateFormatter.convertEpochToString(forecastWeatherResponse.dt)
+                tv_forecast_date.text = util.convertEpochToString(forecastWeatherResponse.dt)
                 iv_forecast_icon.setImageResource(getLocalIconResource(context, forecastWeatherResponse.weather[0].icon))
                 pb_forecast.visibility = GONE
             }

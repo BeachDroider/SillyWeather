@@ -1,6 +1,7 @@
 package com.example.foad.sillyweather.di;
 
 import com.example.foad.sillyweather.ui.weather.WeatherFragment;
+import com.example.foad.sillyweather.ui.weather.WeatherViewModel;
 
 import dagger.BindsInstance;
 import dagger.Component;
@@ -20,5 +21,5 @@ public interface FragmentComponent {
         Builder fragment(android.support.v4.app.Fragment fragment);
     }
 
-    void inject(WeatherFragment weatherFragment);
+//    void inject(WeatherFragment weatherFragment);
 }
