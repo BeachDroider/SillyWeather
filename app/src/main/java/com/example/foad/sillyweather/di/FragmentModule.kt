@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import android.util.Log
 
 import com.example.foad.sillyweather.constants.Constants
+import com.example.foad.sillyweather.ui.weather.WeatherRepository
 import com.example.foad.sillyweather.ui.weather.WeatherViewModel
 
 import javax.inject.Named
@@ -25,8 +26,8 @@ class FragmentModule {
 
     @FragmentScope
     @Provides
-    fun provideFactory(application: Application, @Named("city") city: String?): WeatherViewModel.Factory {
-          return WeatherViewModel.Factory(application, city)
-
+    fun provideFactory(application: Application, repo: WeatherRepository): WeatherViewModel.Factory {
+        return WeatherViewModel.Factory(application, repo)
     }
+
 }
