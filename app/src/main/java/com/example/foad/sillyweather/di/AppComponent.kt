@@ -15,7 +15,8 @@ import javax.inject.Singleton
 @Singleton
 @Component(
         modules = [
-            AppModule::class
+            AppModule::class,
+            WeatherModule::class
         ]
 )
 interface AppComponent {
@@ -38,7 +39,7 @@ interface AppComponent {
 
     }
 
-    fun inject(weatherRepository: WeatherRepository)
+    fun inject(weatherFragment: WeatherFragment)
 
 
 }

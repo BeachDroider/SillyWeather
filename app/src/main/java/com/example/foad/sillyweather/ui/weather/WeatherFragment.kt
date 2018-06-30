@@ -12,7 +12,10 @@ import com.example.foad.sillyweather.R
 import com.example.foad.sillyweather.constants.Constants.Companion.WEATHER_FRAGMENT_KEY_CITY
 import kotlinx.android.synthetic.main.fragment_weather.*
 import android.arch.lifecycle.ViewModelProviders
+import android.util.Log
 import com.example.foad.sillyweather.constants.Constants
+import com.example.foad.sillyweather.di.DaggerAppComponent
+import javax.inject.Inject
 
 
 class WeatherFragment : Fragment() {
@@ -21,6 +24,7 @@ class WeatherFragment : Fragment() {
 
     lateinit var adapter: WeatherAdapter
     lateinit var weatherViewModelFactory: WeatherViewModel.Factory
+    @Inject lateinit var weatherRepository: WeatherRepository
     private var viewModel: WeatherViewModel? = null
 
     companion object {
@@ -38,6 +42,10 @@ class WeatherFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        activity?.application?.let {
+            DaggerAppComponent.builder().application(it).build().inject(this)
+        }
+
         city = arguments?.getString(Constants.WEATHER_FRAGMENT_KEY_CITY)
 
         adapter = WeatherAdapter()
@@ -51,7 +59,7 @@ class WeatherFragment : Fragment() {
     fun loadWeather() {
 
         activity?.application?.let {
-            weatherViewModelFactory = WeatherViewModel.Factory(it,  city )
+            weatherViewModelFactory = WeatherViewModel.Factory(it,  city, weatherRepository )
         }
 
         viewModel = ViewModelProviders.of(this, weatherViewModelFactory).get(WeatherViewModel::class.java)
@@ -63,5 +71,16 @@ class WeatherFragment : Fragment() {
         viewModel?.forecastWeather?.observe(this, Observer {
             adapter.forecastWeatherData = it
         })
+
+        viewModel?.loading?.observe(this, Observer {
+            Log.i("8888", "loading: $it")
+        })
+
+        viewModel?.error?.observe(this, Observer {
+            Log.i("8888", "error: $it")
+        })
+
+
+
     }
 }
