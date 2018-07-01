@@ -64,12 +64,8 @@ class WeatherFragment : Fragment() {
 
         viewModel = ViewModelProviders.of(this, weatherViewModelFactory).get(WeatherViewModel::class.java)
 
-        viewModel?.currentWeather?.observe(this, Observer {
-            adapter.currentWeatherData = it
-        })
-
-        viewModel?.forecastWeather?.observe(this, Observer {
-            adapter.forecastWeatherData = it
+        viewModel?.weatherListViewModel?.observe(this, Observer {
+            adapter.weatherListViewModel = it
         })
 
         viewModel?.loading?.observe(this, Observer {

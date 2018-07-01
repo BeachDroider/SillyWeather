@@ -1,32 +1,19 @@
 package com.example.foad.sillyweather.ui.weather
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import com.example.foad.sillyweather.BuildConfig
 import com.example.foad.sillyweather.R
-import com.example.foad.sillyweather.data.CurrentWeatherResponse
-import com.example.foad.sillyweather.data.ForecastWeatherResponseWrapper
-import com.example.foad.sillyweather.util.util
 import kotlinx.android.synthetic.main.current_weather_item.view.*
 import kotlinx.android.synthetic.main.forecast_weather_item.view.*
-import kotlin.math.roundToInt
 
 class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var currentWeatherData: CurrentWeatherResponse? = null
-        set(data) {
-            field = data
-            notifyDataSetChanged()
-        }
-
-    var forecastWeatherData: ForecastWeatherResponseWrapper? = null
-        set(data) {
-            field = data
+    var weatherListViewModel: WeatherListViewModel? = null
+        set(value) {
+            field = value
             notifyDataSetChanged()
         }
 
@@ -48,46 +35,36 @@ class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is CurrentWeatherVH -> {
-                currentWeatherData?.let { holder.bind(it) } ?: holder.showProgress()
+                weatherListViewModel?.currentWeatherListViewModel?.let { holder.bind(it) }
             }
             is ForecastWeatherVH -> {
-                forecastWeatherData?.let { holder.bind(it) } ?: holder.showProgress()
+                weatherListViewModel?.forecastWeatherListViewModels?.get(position - 1)?.let { holder.bind(it) }
             }
         }
     }
 
     inner class CurrentWeatherVH(view: View) : RecyclerView.ViewHolder(view) {
-        fun showProgress() = itemView.pb_current.setVisibility(VISIBLE)
-        fun bind(data: CurrentWeatherResponse) {
+        fun bind(listViewModel: WeatherListViewModel.CurrentWeatherListViewModel) {
             with(itemView) {
-                tv_current_temp.text = data.main.temp.roundToInt().toString() + " \u2103"
-                tv_current_city.text = data.name
-                tv_current_date.text = util.convertEpochToString(data.dt)
-                tv_current_description.text = data.weather[0].description
-                iv_current_icon.setImageResource(getLocalIconResource(context, data.weather[0].icon))
-                itemView.pb_current.visibility = GONE
+                tv_current_temp.text = listViewModel.temp
+                tv_current_city.text = listViewModel.city
+                tv_current_date.text = listViewModel.date
+                tv_current_description.text = listViewModel.description
+                iv_current_icon.setImageResource(listViewModel.iconResId)
             }
         }
     }
 
     inner class ForecastWeatherVH(view: View) : RecyclerView.ViewHolder(view) {
-        fun showProgress() = itemView.pb_forecast.setVisibility(VISIBLE)
-        fun bind(data: ForecastWeatherResponseWrapper) {
+        fun bind(listViewModel: WeatherListViewModel.ForecastWeatherListViewModel) {
             with(itemView) {
-                val forecastWeatherResponse = data.list[adapterPosition - 1]
-                tv_forecast_min.text = forecastWeatherResponse.temp.min.roundToInt().toString()
-                tv_forecast_max.text = forecastWeatherResponse.temp.max.roundToInt().toString()
-                tv_forecast_description.text = forecastWeatherResponse.weather[0].main
-                tv_forecast_date.text = util.convertEpochToString(forecastWeatherResponse.dt)
-                iv_forecast_icon.setImageResource(getLocalIconResource(context, forecastWeatherResponse.weather[0].icon))
-                pb_forecast.visibility = GONE
+                tv_forecast_min.text = listViewModel.tempMin
+                tv_forecast_max.text = listViewModel.tempMax
+                tv_forecast_description.text = listViewModel.descriptiopn
+                tv_forecast_date.text = listViewModel.date
+                iv_forecast_icon.setImageResource(listViewModel.iconResId)
             }
         }
-    }
-
-    private fun getLocalIconResource(context: Context, iconNameOnServer: String) : Int {
-        val resId = context.resources.getIdentifier("ic_$iconNameOnServer", "drawable", context.packageName)
-        return if (resId != 0) resId else context.resources.getIdentifier("ic_na", "drawable", context.packageName)
     }
 
 }

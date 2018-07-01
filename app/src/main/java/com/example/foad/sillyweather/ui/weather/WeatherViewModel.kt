@@ -2,6 +2,7 @@ package com.example.foad.sillyweather.ui.weather
 
 import android.app.Application
 import android.arch.lifecycle.*
+import android.content.Context
 import android.util.Log
 import com.example.foad.sillyweather.api.Resource
 import com.example.foad.sillyweather.data.CurrentWeatherResponse
@@ -13,8 +14,9 @@ class WeatherViewModel(application: Application,
 
     private var currentWeatherResource: MutableLiveData<Resource<CurrentWeatherResponse>>
     private var forecastWeatherResource: MutableLiveData<Resource<ForecastWeatherResponseWrapper>>
-    var currentWeather: MutableLiveData<CurrentWeatherResponse> = MutableLiveData()
-    var forecastWeather: MutableLiveData<ForecastWeatherResponseWrapper> = MutableLiveData()
+
+    var weatherListViewModel: MutableLiveData<WeatherListViewModel> = MutableLiveData()
+
     var error: MutableLiveData<Boolean> = MutableLiveData()
     var loading: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -28,17 +30,24 @@ class WeatherViewModel(application: Application,
 
 
         currentWeatherResource.observeForever {
-            currentWeather.value = it?.data
+            update()
             updateStatus()
         }
 
-        forecastWeatherResource.observeForever{
-            forecastWeather.value = it?.data
+        forecastWeatherResource.observeForever {
+            update()
             updateStatus()
         }
     }
 
-    private fun updateStatus(){
+    private fun update() {
+        weatherListViewModel.value = WeatherListViewModel(
+                getApplication() as Context,
+                currentWeatherResource.value?.data,
+                forecastWeatherResource.value?.data)
+    }
+
+    private fun updateStatus() {
         loading.value = (currentWeatherResource.value is Resource.Loading) || (forecastWeatherResource.value is Resource.Loading)
         error.value = (currentWeatherResource.value is Resource.Error) || (forecastWeatherResource.value is Resource.Error)
 
