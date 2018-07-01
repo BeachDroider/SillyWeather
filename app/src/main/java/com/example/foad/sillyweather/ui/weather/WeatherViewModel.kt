@@ -3,14 +3,13 @@ package com.example.foad.sillyweather.ui.weather
 import android.app.Application
 import android.arch.lifecycle.*
 import android.content.Context
-import android.util.Log
 import com.example.foad.sillyweather.api.Resource
 import com.example.foad.sillyweather.data.CurrentWeatherResponse
 import com.example.foad.sillyweather.data.ForecastWeatherResponseWrapper
 
 class WeatherViewModel(application: Application,
                        val city: String?,
-                       weatherRepository: WeatherRepository) : AndroidViewModel(application) {
+                       val weatherRepository: WeatherRepository) : AndroidViewModel(application) {
 
     private var currentWeatherResource: MutableLiveData<Resource<CurrentWeatherResponse>>
     private var forecastWeatherResource: MutableLiveData<Resource<ForecastWeatherResponseWrapper>>
@@ -18,6 +17,7 @@ class WeatherViewModel(application: Application,
     var weatherListViewModel: MutableLiveData<WeatherListViewModel> = MutableLiveData()
 
     var error: MutableLiveData<Boolean> = MutableLiveData()
+    var forecastError: MutableLiveData<Boolean> = MutableLiveData()
     var loading: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
@@ -31,13 +31,15 @@ class WeatherViewModel(application: Application,
 
         currentWeatherResource.observeForever {
             update()
-            updateStatus()
         }
 
         forecastWeatherResource.observeForever {
             update()
-            updateStatus()
         }
+    }
+
+    fun refresh(){
+        weatherRepository.load()
     }
 
     private fun update() {
@@ -45,13 +47,13 @@ class WeatherViewModel(application: Application,
                 getApplication() as Context,
                 currentWeatherResource.value?.data,
                 forecastWeatherResource.value?.data)
-    }
 
-    private fun updateStatus() {
+        error.value = currentWeatherResource.value is Resource.Error || forecastWeatherResource.value is Resource.Error
         loading.value = (currentWeatherResource.value is Resource.Loading) || (forecastWeatherResource.value is Resource.Loading)
-        error.value = (currentWeatherResource.value is Resource.Error) || (forecastWeatherResource.value is Resource.Error)
+
 
     }
+
 
     class Factory(val application: Application, val city: String?, val weatherRepository: WeatherRepository) : ViewModelProvider.NewInstanceFactory() {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {

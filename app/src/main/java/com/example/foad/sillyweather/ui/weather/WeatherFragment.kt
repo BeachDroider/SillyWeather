@@ -12,6 +12,7 @@ import com.example.foad.sillyweather.R
 import com.example.foad.sillyweather.constants.Constants.Companion.WEATHER_FRAGMENT_KEY_CITY
 import kotlinx.android.synthetic.main.fragment_weather.*
 import android.arch.lifecycle.ViewModelProviders
+import android.support.design.widget.Snackbar
 import android.util.Log
 import com.example.foad.sillyweather.constants.Constants
 import com.example.foad.sillyweather.di.DaggerAppComponent
@@ -21,10 +22,13 @@ import javax.inject.Inject
 class WeatherFragment : Fragment() {
 
     var city: String? = null
+    var isShowingError = false
+    lateinit var errorSnackbar: Snackbar
 
     lateinit var adapter: WeatherAdapter
     lateinit var weatherViewModelFactory: WeatherViewModel.Factory
-    @Inject lateinit var weatherRepository: WeatherRepository
+    @Inject
+    lateinit var weatherRepository: WeatherRepository
     private var viewModel: WeatherViewModel? = null
 
     companion object {
@@ -41,6 +45,7 @@ class WeatherFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        errorSnackbar = Snackbar.make(sw_layout, "Error loading weather!", Snackbar.LENGTH_LONG)
 
         activity?.application?.let {
             DaggerAppComponent.builder().application(it).build().inject(this)
@@ -53,13 +58,30 @@ class WeatherFragment : Fragment() {
         rv_weather.layoutManager = LinearLayoutManager(activity)
         rv_weather.adapter = adapter
 
+        sw_layout.setOnRefreshListener {
+            isShowingError = false
+            errorSnackbar.dismiss()
+            Log.i("7777", "called snqckbar.dismiss()")
+
+            viewModel?.refresh()
+        }
+
         loadWeather()
+    }
+
+    fun showError() {
+        if (!isShowingError){
+            isShowingError = true
+            errorSnackbar.show()
+            Log.i("7777", "called snqckbar.show()")
+        }
+
     }
 
     fun loadWeather() {
 
         activity?.application?.let {
-            weatherViewModelFactory = WeatherViewModel.Factory(it,  city, weatherRepository )
+            weatherViewModelFactory = WeatherViewModel.Factory(it, city, weatherRepository)
         }
 
         viewModel = ViewModelProviders.of(this, weatherViewModelFactory).get(WeatherViewModel::class.java)
@@ -69,13 +91,15 @@ class WeatherFragment : Fragment() {
         })
 
         viewModel?.loading?.observe(this, Observer {
-            Log.i("8888", "loading: $it")
+            it?.let { sw_layout.isRefreshing = it }
         })
 
         viewModel?.error?.observe(this, Observer {
-            Log.i("8888", "error: $it")
+            it?.let {
+                Log.i("9999", "error: $it")
+                if (it) showError()
+            }
         })
-
 
 
     }

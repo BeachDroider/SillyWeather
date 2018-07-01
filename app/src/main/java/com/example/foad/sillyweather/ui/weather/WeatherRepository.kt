@@ -31,9 +31,13 @@ class WeatherRepository @Inject constructor(
             field = value
             currentWeather = MutableLiveData()
             forecastWeather = MutableLiveData()
-            loadCurrentFromDatabase()
-            loadForecastFromDatabase()
+            load()
         }
+
+    fun load(){
+        loadCurrentFromDatabase()
+        loadForecastFromDatabase()
+    }
 
     private fun loadCurrentFromDatabase() {
         city?.let {
