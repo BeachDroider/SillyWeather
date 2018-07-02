@@ -17,43 +17,40 @@ class WeatherViewModel(application: Application,
     var weatherListViewModel: MutableLiveData<WeatherListViewModel> = MutableLiveData()
 
     var error: MutableLiveData<Boolean> = MutableLiveData()
-    var forecastError: MutableLiveData<Boolean> = MutableLiveData()
     var loading: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
         weatherRepository.city = city
         error.value = false
         loading.value = false
+        weatherListViewModel.value = WeatherListViewModel(getApplication() as Context)
 
         currentWeatherResource = weatherRepository.currentWeather
         forecastWeatherResource = weatherRepository.forecastWeather
 
-
         currentWeatherResource.observeForever {
-            update()
+            val tempWeatherListViewModel = weatherListViewModel.value
+            tempWeatherListViewModel?.currentWeatherResponse = it?.data
+            weatherListViewModel.value = tempWeatherListViewModel
+            updateStatus()
         }
 
         forecastWeatherResource.observeForever {
-            update()
+            val tempWeatherListViewModel = weatherListViewModel.value
+            tempWeatherListViewModel?.forecastWeatherResponseWrapper = it?.data
+            weatherListViewModel.value = tempWeatherListViewModel
+            updateStatus()
         }
     }
 
-    fun refresh(){
+    fun refresh() {
         weatherRepository.load()
     }
 
-    private fun update() {
-        weatherListViewModel.value = WeatherListViewModel(
-                getApplication() as Context,
-                currentWeatherResource.value?.data,
-                forecastWeatherResource.value?.data)
-
+    private fun updateStatus() {
         error.value = currentWeatherResource.value is Resource.Error || forecastWeatherResource.value is Resource.Error
         loading.value = (currentWeatherResource.value is Resource.Loading) || (forecastWeatherResource.value is Resource.Loading)
-
-
     }
-
 
     class Factory(val application: Application, val city: String?, val weatherRepository: WeatherRepository) : ViewModelProvider.NewInstanceFactory() {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {

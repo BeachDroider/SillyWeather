@@ -1,28 +1,31 @@
 package com.example.foad.sillyweather.ui.weather
 
 import android.content.Context
+import android.util.Log
 import com.example.foad.sillyweather.data.CurrentWeatherResponse
 import com.example.foad.sillyweather.data.ForecastWeatherResponse
 import com.example.foad.sillyweather.data.ForecastWeatherResponseWrapper
 import com.example.foad.sillyweather.util.util
 import kotlin.math.roundToInt
 
-class WeatherListViewModel(val context: Context,
-                           currentWeatherResponse: CurrentWeatherResponse?,
-                           forecastWeatherResponseWrapper: ForecastWeatherResponseWrapper?) {
+class WeatherListViewModel(val context: Context) {
 
-    init {
-        currentWeatherResponse?.let {
-            currentWeatherListViewModel = CurrentWeatherListViewModel(it)
-
-        }
-        forecastWeatherResponseWrapper?.let { responseWrapper ->
-            forecastWeatherListViewModels = responseWrapper.list.map { response ->
-                ForecastWeatherListViewModel(response)
+    var currentWeatherResponse: CurrentWeatherResponse? = null
+        set(value) {
+            value?.let {
+                currentWeatherListViewModel = CurrentWeatherListViewModel(it)
             }
         }
-    }
 
+    var forecastWeatherResponseWrapper: ForecastWeatherResponseWrapper? = null
+        set(value) {
+
+            value?.let { responseWrapper ->
+                forecastWeatherListViewModels = responseWrapper.list.map { response ->
+                    ForecastWeatherListViewModel(response)
+                }
+            }
+        }
 
     var currentWeatherListViewModel: CurrentWeatherListViewModel? = null
     var forecastWeatherListViewModels: List<ForecastWeatherListViewModel>? = null

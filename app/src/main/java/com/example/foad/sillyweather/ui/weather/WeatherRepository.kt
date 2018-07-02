@@ -103,12 +103,12 @@ class WeatherRepository @Inject constructor(
                             if (response.isSuccessful) {
                                 writeForecastToDatabase(forecastWeatherResponseWrapper)
                             } else {
-                                forecastWeather.value = Resource.Error(forecastWeatherResponseWrapper, response.errorBody().toString())
+                                forecastWeather.value = Resource.Error(forecastWeatherResponseWrapper, "network error loading forecast")
                             }
                         }
 
                         override fun onFailure(call: Call<ForecastWeatherResponseWrapper>?, t: Throwable?) {
-                            forecastWeather.value = Resource.Error(null, t?.localizedMessage)
+                            forecastWeather.value = Resource.Error(null, "no network to load forecast")
                         }
                     }
             )
