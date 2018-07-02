@@ -22,8 +22,6 @@ import javax.inject.Inject
 class WeatherFragment : Fragment() {
 
     var city: String? = null
-    var isShowingError = false
-    lateinit var errorSnackbar: Snackbar
 
     lateinit var adapter: WeatherAdapter
     lateinit var weatherViewModelFactory: WeatherViewModel.Factory
@@ -45,7 +43,6 @@ class WeatherFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        errorSnackbar = Snackbar.make(sw_layout, "Error loading weather!", Snackbar.LENGTH_LONG)
 
         activity?.application?.let {
             DaggerAppComponent.builder().application(it).build().inject(this)
@@ -59,23 +56,10 @@ class WeatherFragment : Fragment() {
         rv_weather.adapter = adapter
 
         sw_layout.setOnRefreshListener {
-            isShowingError = false
-            errorSnackbar.dismiss()
-            Log.i("7777", "called snqckbar.dismiss()")
-
             viewModel?.refresh()
         }
 
         loadWeather()
-    }
-
-    fun showError() {
-        if (!isShowingError){
-            isShowingError = true
-            errorSnackbar.show()
-            Log.i("7777", "called snqckbar.show()")
-        }
-
     }
 
     fun loadWeather() {
@@ -95,12 +79,7 @@ class WeatherFragment : Fragment() {
         })
 
         viewModel?.error?.observe(this, Observer {
-            it?.let {
-                Log.i("9999", "error: $it")
-                if (it) showError()
-            }
         })
-
 
     }
 }
