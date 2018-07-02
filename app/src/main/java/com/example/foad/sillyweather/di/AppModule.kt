@@ -72,7 +72,7 @@ class AppModule {
         return Room
                 .databaseBuilder(application, SillyWeatherDb::class.java, BuildConfig.DB_NAME)
                 .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
+               // .allowMainThreadQueries()
                 .build()
     }
 

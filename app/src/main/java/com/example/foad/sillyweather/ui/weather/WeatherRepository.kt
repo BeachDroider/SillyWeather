@@ -2,7 +2,6 @@ package com.example.foad.sillyweather.ui.weather
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
 import com.example.foad.sillyweather.api.OpenWeatherMapService
 import com.example.foad.sillyweather.api.Resource
 import com.example.foad.sillyweather.data.CurrentWeatherResponse
@@ -10,6 +9,8 @@ import com.example.foad.sillyweather.data.ForecastWeatherResponseWrapper
 import com.example.foad.sillyweather.db.CurrentWeatherResponseDao
 import com.example.foad.sillyweather.db.ForecastWeatherResponseDao
 import com.example.foad.sillyweather.util.util
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.android.UI
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -34,19 +35,25 @@ class WeatherRepository @Inject constructor(
             load()
         }
 
-    fun load(){
+    fun load() {
         loadCurrentFromDatabase()
         loadForecastFromDatabase()
     }
 
     private fun loadCurrentFromDatabase() {
-        city?.let {
-            val initialDbResult = currentWeatherDao.getCurrentWeather(it)
-            if (util.isCacheValid(initialDbResult?.timestamp)) {
-                currentWeather.value = Resource.Success(initialDbResult)
-            } else {
-                currentWeather.value = Resource.Loading(null)
-                loadCurrentFromNetwork()
+        launch(UI) {
+
+            city?.let {
+                val initialDbResult = async(CommonPool) {
+                    currentWeatherDao.getCurrentWeather(it)
+                }.await()
+
+                if (util.isCacheValid(initialDbResult?.timestamp)) {
+                    currentWeather.value = Resource.Success(initialDbResult)
+                } else {
+                    currentWeather.value = Resource.Loading(null)
+                    loadCurrentFromNetwork()
+                }
             }
         }
     }
@@ -73,23 +80,33 @@ class WeatherRepository @Inject constructor(
     }
 
     private fun writeCurrentToDatabase(response: CurrentWeatherResponse?) {
-        // write to and read back from db for single source of truth
-        response?.let {
-            currentWeatherDao.insert(it)
-            city?.let {
-                currentWeather.value = Resource.Success(currentWeatherDao.getCurrentWeather(it))
+        launch(UI) {
+            var deferredDbResponse: Deferred<CurrentWeatherResponse?>? = null
+            // write to and read back from db for single source of truth
+            response?.let {
+                deferredDbResponse = async(CommonPool) {
+                    currentWeatherDao.insert(it)
+                    city?.let { currentWeatherDao.getCurrentWeather(it) }
+                }
             }
+            currentWeather.value = Resource.Success(deferredDbResponse?.await())
         }
     }
 
+
     private fun loadForecastFromDatabase() {
-        city?.let {
-            val initialDbResult = forecastWeatherDao.getForecastWeather(it)
-            if (util.isCacheValid(initialDbResult?.timestamp)) {
-                forecastWeather.value = Resource.Success(initialDbResult)
-            } else {
-                forecastWeather.value = Resource.Loading(null)
-                loadForecastFromNetwork()
+        launch(UI) {
+            city?.let {
+                val initialDbResult = async(CommonPool) {
+                    forecastWeatherDao.getForecastWeather(it)
+                }.await()
+
+                if (util.isCacheValid(initialDbResult?.timestamp)) {
+                    forecastWeather.value = Resource.Success(initialDbResult)
+                } else {
+                    forecastWeather.value = Resource.Loading(null)
+                    loadForecastFromNetwork()
+                }
             }
         }
     }
@@ -116,11 +133,15 @@ class WeatherRepository @Inject constructor(
     }
 
     private fun writeForecastToDatabase(response: ForecastWeatherResponseWrapper?) {
-        response?.let {
-            forecastWeatherDao.insert(it)
-            city?.let {
-                forecastWeather.value = Resource.Success(forecastWeatherDao.getForecastWeather(it))
+        launch(UI) {
+            var deferredDbResponse: Deferred<ForecastWeatherResponseWrapper?>? = null
+            response?.let {
+                deferredDbResponse = async(CommonPool) {
+                    forecastWeatherDao.insert(it)
+                    city?.let { forecastWeatherDao.getForecastWeather(it) }
+                }
             }
+            forecastWeather.value = Resource.Success(deferredDbResponse?.await())
         }
     }
 
