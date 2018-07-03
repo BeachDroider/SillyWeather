@@ -16,7 +16,7 @@ interface OpenWeatherMapService {
             @Query ("q") query: String,
             @Query("units") unit:String = "metric",
             @Query("APPID") appId: String = BuildConfig.API_KEY
-            ): Call<CurrentWeatherResponse>
+            ): Call<CurrentWeatherResponse?>
 
     @GET("/data/2.5/forecast/daily")
     fun getForecastWeather(
@@ -25,6 +25,6 @@ interface OpenWeatherMapService {
             @Query("cnt") count: Int = BuildConfig.FORECAST_ITEM_COUNT,
             @Query("APPID") appId: String = BuildConfig.API_KEY
 
-    ): Call<ForecastWeatherResponseWrapper>
+    ): Call<ForecastWeatherResponseWrapper?>
 
 }

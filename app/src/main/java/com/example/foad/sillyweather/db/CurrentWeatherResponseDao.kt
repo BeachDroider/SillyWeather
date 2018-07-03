@@ -8,7 +8,7 @@ import android.arch.persistence.room.Query
 import com.example.foad.sillyweather.data.CurrentWeatherResponse
 
 @Dao
-interface CurrentWeatherResponseDao {
+interface CurrentWeatherResponseDao  {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(currentWeather: CurrentWeatherResponse)

@@ -7,7 +7,7 @@ import android.arch.persistence.room.TypeConverters
 
 @Entity(tableName = "currentWeatherResponses", primaryKeys =["name"])
 data class CurrentWeatherResponse(
-        val timestamp: Long,
+        var timestamp: Long,
         val weather: List<Weather>,
         @Embedded
         val main: Main,
@@ -17,4 +17,14 @@ data class CurrentWeatherResponse(
         val dt: Long,
         val name: String
 
-)
+
+) : BaseDataClass{
+
+        override fun getTimestampForDao(): Long {
+                return timestamp
+        }
+
+        override fun setTimestampForDao(daoTimestamp: Long) {
+                timestamp = daoTimestamp
+        }
+}
