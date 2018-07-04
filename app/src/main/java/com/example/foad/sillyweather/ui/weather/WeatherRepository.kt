@@ -33,24 +33,22 @@ class WeatherRepository @Inject constructor(
             load()
         }
 
-    fun load(){
+    fun load() {
         city?.let {
             process(it, currentWeather, service.getCurrentWeather(it), currentWeatherDao::insert, currentWeatherDao::getCurrentWeather)
             process(it, forecastWeather, service.getForecastWeather(it), forecastWeatherDao::insert, forecastWeatherDao::getForecastWeather)
         }
     }
 
-    private fun <T> postError(livedata: MutableLiveData<Resource<T>>, message: String) {
-
-        livedata.postValue(Resource.Error(null, message))
-
-    }
 
     private fun <T> process(city: String,
                             livedata: MutableLiveData<Resource<T>>,
                             call: Call<T?>,
                             insert: (T) -> Any,
                             get: (String) -> T?) {
+
+        fun <T> postError(livedata: MutableLiveData<Resource<T>>, message: String) = livedata.postValue(Resource.Error(null, message))
+
 
         launch(CommonPool) {
             val initialDbResult = get(city)
@@ -70,6 +68,7 @@ class WeatherRepository @Inject constructor(
                     postError(livedata, e.toString())
                 }
             }
+
         }
     }
 }
