@@ -2,11 +2,13 @@ package com.example.foad.sillyweather.ui.weather
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
+import android.util.Log
 import com.example.foad.sillyweather.api.OpenWeatherMapService
 import com.example.foad.sillyweather.api.Resource
 import com.example.foad.sillyweather.data.BaseDataClass
 import com.example.foad.sillyweather.data.CurrentWeatherResponse
 import com.example.foad.sillyweather.data.ForecastWeatherResponseWrapper
+import com.example.foad.sillyweather.data.PickedCity
 import com.example.foad.sillyweather.db.CurrentWeatherResponseDao
 import com.example.foad.sillyweather.db.ForecastWeatherResponseDao
 import com.example.foad.sillyweather.util.util
@@ -18,26 +20,18 @@ import javax.inject.Singleton
 @Singleton
 class WeatherRepository @Inject constructor(
         val application: Application,
-        val service: OpenWeatherMapService,
-        val currentWeatherDao: CurrentWeatherResponseDao,
-        val forecastWeatherDao: ForecastWeatherResponseDao) {
+        private val service: OpenWeatherMapService,
+        private val currentWeatherDao: CurrentWeatherResponseDao,
+        private val forecastWeatherDao: ForecastWeatherResponseDao) {
 
-    lateinit var currentWeather: MutableLiveData<Resource<CurrentWeatherResponse>>
-    lateinit var forecastWeather: MutableLiveData<Resource<ForecastWeatherResponseWrapper>>
+    val currentWeather: MutableLiveData<Resource<CurrentWeatherResponse>> = MutableLiveData()
+    val forecastWeather: MutableLiveData<Resource<ForecastWeatherResponseWrapper>> = MutableLiveData()
 
-    var city: String? = null
-        set(value) {
-            field = value
-            currentWeather = MutableLiveData()
-            forecastWeather = MutableLiveData()
-            load()
-        }
+    fun load(city: PickedCity) {
 
-    fun load() {
-        city?.let {
-            process(it, currentWeather, service.getCurrentWeather(it), currentWeatherDao::insert, currentWeatherDao::getCurrentWeather)
-            process(it, forecastWeather, service.getForecastWeather(it), forecastWeatherDao::insert, forecastWeatherDao::getForecastWeather)
-        }
+            process(city.name, currentWeather, service.getCurrentWeather(city.name), currentWeatherDao::insert, currentWeatherDao::getCurrentWeather)
+            process(city.name, forecastWeather, service.getForecastWeather(city.name), forecastWeatherDao::insert, forecastWeatherDao::getForecastWeather)
+
     }
 
 
@@ -47,15 +41,17 @@ class WeatherRepository @Inject constructor(
                             insert: (T) -> Any,
                             get: (String) -> T?) {
 
-        fun <T> postError(livedata: MutableLiveData<Resource<T>>, message: String) = livedata.postValue(Resource.Error(null, message))
+        fun <T> postError(livedata: MutableLiveData<Resource<T>>, message: String) {
+            livedata.postValue(Resource.Error(null, message))
+        }
 
 
+        livedata.value = Resource.Loading(null)
         launch(CommonPool) {
             val initialDbResult = get(city)
             if (util.isCacheValid((initialDbResult as? (BaseDataClass))?.getTimestampForDao())) {
                 livedata.postValue(Resource.Success(initialDbResult))
             } else {
-                livedata.postValue(Resource.Loading(null))
                 try {
                     val response = call.execute()
                     if (response.isSuccessful) {

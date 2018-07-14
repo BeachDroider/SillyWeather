@@ -5,6 +5,7 @@ import com.example.foad.sillyweather.api.OpenWeatherMapService
 import com.example.foad.sillyweather.db.CurrentWeatherResponseDao
 import com.example.foad.sillyweather.db.ForecastWeatherResponseDao
 import com.example.foad.sillyweather.db.SillyWeatherDb
+import com.example.foad.sillyweather.ui.weather.MainActivity
 import com.example.foad.sillyweather.ui.weather.WeatherFragment
 import com.example.foad.sillyweather.ui.weather.WeatherRepository
 import com.example.foad.sillyweather.ui.weather.WeatherViewModel
@@ -13,12 +14,7 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(
-        modules = [
-            AppModule::class,
-            WeatherModule::class
-        ]
-)
+@Component(modules = [AppModule::class])
 interface AppComponent {
     fun application(): Application
     fun openWeatherMapService(): OpenWeatherMapService
@@ -40,6 +36,7 @@ interface AppComponent {
     }
 
     fun inject(weatherFragment: WeatherFragment)
+    fun inject(mainActivity: MainActivity)
 
 
 }

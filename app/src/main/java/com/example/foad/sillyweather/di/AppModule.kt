@@ -8,6 +8,7 @@ import com.example.foad.sillyweather.data.CurrentWeatherResponse
 import com.example.foad.sillyweather.data.ForecastWeatherResponseWrapper
 import com.example.foad.sillyweather.db.CurrentWeatherResponseDao
 import com.example.foad.sillyweather.db.ForecastWeatherResponseDao
+import com.example.foad.sillyweather.db.PickedCityDao
 import com.example.foad.sillyweather.db.SillyWeatherDb
 import com.google.gson.*
 import dagger.Module
@@ -86,6 +87,12 @@ class AppModule {
     @Provides
     fun provideForecastWeatherDao(sillyWeatherDb: SillyWeatherDb): ForecastWeatherResponseDao {
         return sillyWeatherDb.forecastWeatherDao()
+    }
+
+    @Singleton
+    @Provides
+    fun providePickedCityDao(sillyWeatherDb: SillyWeatherDb): PickedCityDao {
+        return sillyWeatherDb.pickedCityDao()
     }
 
 }

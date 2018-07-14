@@ -1,6 +1,7 @@
 package com.example.foad.sillyweather.ui.weather
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
@@ -35,10 +36,10 @@ class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is CurrentWeatherVH -> {
-                weatherListViewModel?.currentWeatherListViewModel?.let { holder.bind(it) }
+                weatherListViewModel?.currentWeatherListViewModel?.let { holder.bind(it) } ?: holder.clear()
             }
             is ForecastWeatherVH -> {
-                weatherListViewModel?.forecastWeatherListViewModels?.get(position - 1)?.let { holder.bind(it) }
+                weatherListViewModel?.forecastWeatherListViewModels?.get(position - 1)?.let { holder.bind(it) } ?: holder.clear()
             }
         }
     }
@@ -53,6 +54,16 @@ class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 iv_current_icon.setImageResource(listViewModel.iconResId)
             }
         }
+        fun clear(){
+
+            with(itemView) {
+                tv_current_temp.text = ""
+                tv_current_city.text = ""
+                tv_current_date.text = ""
+                tv_current_description.text = ""
+                iv_current_icon.setImageResource(0)
+            }
+        }
     }
 
     inner class ForecastWeatherVH(view: View) : RecyclerView.ViewHolder(view) {
@@ -65,6 +76,15 @@ class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 iv_forecast_icon.setImageResource(listViewModel.iconResId)
             }
         }
-    }
 
+        fun clear(){
+            with(itemView) {
+                tv_forecast_min.text = ""
+                tv_forecast_max.text = ""
+                tv_forecast_description.text = ""
+                tv_forecast_date.text = ""
+                iv_forecast_icon.setImageResource(0)
+            }
+        }
+    }
 }

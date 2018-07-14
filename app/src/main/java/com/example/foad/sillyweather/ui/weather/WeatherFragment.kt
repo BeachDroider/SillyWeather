@@ -9,19 +9,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.foad.sillyweather.R
-import com.example.foad.sillyweather.constants.Constants.Companion.WEATHER_FRAGMENT_KEY_CITY
 import kotlinx.android.synthetic.main.fragment_weather.*
 import android.arch.lifecycle.ViewModelProviders
-import android.support.design.widget.Snackbar
 import android.util.Log
-import com.example.foad.sillyweather.constants.Constants
+import com.example.foad.sillyweather.data.PickedCity
 import com.example.foad.sillyweather.di.DaggerAppComponent
 import javax.inject.Inject
 
 
 class WeatherFragment : Fragment() {
-
-    var city: String? = null
 
     lateinit var adapter: WeatherAdapter
     lateinit var weatherViewModelFactory: WeatherViewModel.Factory
@@ -30,10 +26,8 @@ class WeatherFragment : Fragment() {
     private var viewModel: WeatherViewModel? = null
 
     companion object {
-        fun newInstance(city: String?): WeatherFragment {
-            val weatherFragment = WeatherFragment()
-            weatherFragment.arguments = Bundle().apply { putString(WEATHER_FRAGMENT_KEY_CITY, city) }
-            return weatherFragment
+        fun newInstance(): WeatherFragment {
+            return WeatherFragment()
         }
     }
 
@@ -48,28 +42,34 @@ class WeatherFragment : Fragment() {
             DaggerAppComponent.builder().application(it).build().inject(this)
         }
 
-        city = arguments?.getString(Constants.WEATHER_FRAGMENT_KEY_CITY)
-
         adapter = WeatherAdapter()
         rv_weather.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
         rv_weather.layoutManager = LinearLayoutManager(activity)
         rv_weather.adapter = adapter
 
-        sw_layout.setOnRefreshListener {
-            viewModel?.refresh()
-        }
-
-        loadWeather()
-    }
-
-    fun loadWeather() {
+//        sw_layout.setOnRefreshListener {
+//            viewModel?.load(city)
+//        }
 
         activity?.application?.let {
-            weatherViewModelFactory = WeatherViewModel.Factory(it, city, weatherRepository)
+            weatherViewModelFactory = WeatherViewModel.Factory(it, weatherRepository)
         }
 
         viewModel = ViewModelProviders.of(this, weatherViewModelFactory).get(WeatherViewModel::class.java)
+        observe()
 
+    }
+
+    fun loadWeather(city: PickedCity) {
+
+        viewModel?.load(city)
+        observe()
+
+
+
+    }
+
+    private fun observe(){
         viewModel?.weatherListViewModel?.observe(this, Observer {
             adapter.weatherListViewModel = it
         })
@@ -80,6 +80,6 @@ class WeatherFragment : Fragment() {
 
         viewModel?.error?.observe(this, Observer {
         })
-
     }
+
 }
