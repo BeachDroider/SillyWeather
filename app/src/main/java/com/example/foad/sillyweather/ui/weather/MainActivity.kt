@@ -5,6 +5,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.view.GravityCompat
+import android.util.Log
 import android.view.MenuItem
 import com.example.foad.sillyweather.R
 import com.example.foad.sillyweather.constants.Constants
@@ -14,7 +15,11 @@ import com.example.foad.sillyweather.di.DaggerAppComponent
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import javax.inject.Inject
 
 
@@ -51,9 +56,7 @@ class MainActivity : AppCompatActivity() {
 
         launch {
             pickedCityDao.getPickedCities().forEach {
-                Intent().putExtra(Constants.PICKED_CITY, it).apply {
-                    nav_view.menu.add(it.name).intent = this
-                }
+                addNavItem(it)
             }
         }
     }
@@ -87,7 +90,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this, data)
-                saveToDb(place)
+                onaddNewCity(place)
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -96,19 +99,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveToDb(place: Place) {
-        launch {
-            with(place) {
-                PickedCity(
-                        name.toString(),
-                        String.format("%.2f", latLng.latitude).toDouble(),
-                        String.format("%.2f", latLng.longitude).toDouble()
-                )
-            }.apply {
-                pickedCityDao.insert(this)
-            }
+    private fun onaddNewCity(place: Place) {
+        val city = PickedCity(
+                place.name.toString(),
+                place.latLng.latitude,
+                place.latLng.longitude
+        )
+        launch(UI) {
+
+            async {
+                pickedCityDao.insert(city)
+            }.await()
+            addNavItem(city)
+
+
         }
 
+
+
+    }
+
+    fun addNavItem(city: PickedCity) {
+        Intent().putExtra(Constants.PICKED_CITY, city).apply {
+            nav_view.menu.add(city.name).intent = this
+        }
     }
 
 }

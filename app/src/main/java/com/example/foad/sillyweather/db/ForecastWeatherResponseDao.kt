@@ -13,7 +13,7 @@ interface ForecastWeatherResponseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(forecastWeatherResponseWrapper: ForecastWeatherResponseWrapper)
 
-    @Query("SELECT * FROM forecastWeatherResponseWrappers WHERE (lat/:lat > 0.95 AND lat/:lat <1.05)  AND (lon/:lon > 0.95 AND lon/:lon <1.05)")
+    @Query("SELECT * FROM forecastWeatherResponseWrappers WHERE (lat/:lat > 0.99 AND lat/:lat <1.01)  AND (lon/:lon > 0.99 AND lon/:lon <1.01)")
     fun getForecastWeather(lat: Double, lon: Double) : ForecastWeatherResponseWrapper?
 
 }
