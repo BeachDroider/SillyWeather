@@ -30,12 +30,19 @@ class WeatherRepository @Inject constructor(
         currentWeather = MutableLiveData()
         forecastWeather = MutableLiveData()
         loadCurrent(city)
-        loadForecast(city)
+        loadForecast(city, forecastWeather,::insertForecast)
 
     }
 
+    fun insertForecast(city: PickedCity, forecastWeatherResponseWrapper: ForecastWeatherResponseWrapper) {
+        forecastWeatherDao.insert(ForecastWeatherDbObj(city.lat, city.lng, System.currentTimeMillis(), forecastWeatherResponseWrapper))
 
-    private fun loadForecast(city: PickedCity){
+    }
+
+    private fun <T> loadForecast(city: PickedCity,
+                                 liveData: MutableLiveData<Resource<T>>,
+                                 insert: (PickedCity, T) -> Any
+    ) {
 
         forecastWeather.value = Resource.Loading(null)
         launch(CommonPool) {
@@ -47,7 +54,7 @@ class WeatherRepository @Inject constructor(
                     val response = service.getForecastWeather(city.lat, city.lng).execute()
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            forecastWeatherDao.insert(ForecastWeatherDbObj(city.lat, city.lng, System.currentTimeMillis(), it))
+                            insert(city,it as T)
                         }
                         val dbResult = forecastWeatherDao.getForecastWeather(city.lat, city.lng)
                         forecastWeather.postValue(Resource.Success(dbResult?.data))
@@ -66,8 +73,7 @@ class WeatherRepository @Inject constructor(
         livedata.postValue(Resource.Error(null, message))
     }
 
-    private fun  loadCurrent(city: PickedCity) {
-
+    private fun loadCurrent(city: PickedCity) {
 
 
         currentWeather.value = Resource.Loading(null)
