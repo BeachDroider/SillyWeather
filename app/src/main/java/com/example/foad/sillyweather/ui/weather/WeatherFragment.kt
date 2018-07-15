@@ -47,9 +47,9 @@ class WeatherFragment : Fragment() {
         rv_weather.layoutManager = LinearLayoutManager(activity)
         rv_weather.adapter = adapter
 
-//        sw_layout.setOnRefreshListener {
-//            viewModel?.load(city)
-//        }
+        sw_layout.setOnRefreshListener {
+            viewModel?.refresh()
+        }
 
         activity?.application?.let {
             weatherViewModelFactory = WeatherViewModel.Factory(it, weatherRepository)
@@ -61,15 +61,11 @@ class WeatherFragment : Fragment() {
     }
 
     fun loadWeather(city: PickedCity) {
-
         viewModel?.load(city)
         observe()
-
-
-
     }
 
-    private fun observe(){
+    private fun observe() {
         viewModel?.weatherListViewModel?.observe(this, Observer {
             adapter.weatherListViewModel = it
         })

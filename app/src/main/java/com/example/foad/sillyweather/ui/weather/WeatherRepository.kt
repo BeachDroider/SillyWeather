@@ -24,13 +24,15 @@ class WeatherRepository @Inject constructor(
         private val currentWeatherDao: CurrentWeatherResponseDao,
         private val forecastWeatherDao: ForecastWeatherResponseDao) {
 
-    val currentWeather: MutableLiveData<Resource<CurrentWeatherResponse>> = MutableLiveData()
-    val forecastWeather: MutableLiveData<Resource<ForecastWeatherResponseWrapper>> = MutableLiveData()
+    lateinit var currentWeather: MutableLiveData<Resource<CurrentWeatherResponse>>
+    lateinit var forecastWeather: MutableLiveData<Resource<ForecastWeatherResponseWrapper>>
 
     fun load(city: PickedCity) {
 
-            process(city.name, currentWeather, service.getCurrentWeather(city.name), currentWeatherDao::insert, currentWeatherDao::getCurrentWeather)
-            process(city.name, forecastWeather, service.getForecastWeather(city.name), forecastWeatherDao::insert, forecastWeatherDao::getForecastWeather)
+        currentWeather = MutableLiveData()
+        forecastWeather = MutableLiveData()
+        process(city.name, currentWeather, service.getCurrentWeather(city.lat, city.lng), currentWeatherDao::insert, currentWeatherDao::getCurrentWeather)
+        process(city.name, forecastWeather, service.getForecastWeather(city.name), forecastWeatherDao::insert, forecastWeatherDao::getForecastWeather)
 
     }
 
@@ -44,7 +46,6 @@ class WeatherRepository @Inject constructor(
         fun <T> postError(livedata: MutableLiveData<Resource<T>>, message: String) {
             livedata.postValue(Resource.Error(null, message))
         }
-
 
         livedata.value = Resource.Loading(null)
         launch(CommonPool) {
@@ -64,7 +65,6 @@ class WeatherRepository @Inject constructor(
                     postError(livedata, e.toString())
                 }
             }
-
         }
     }
 }

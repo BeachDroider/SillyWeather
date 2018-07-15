@@ -11,43 +11,61 @@ import com.example.foad.sillyweather.data.PickedCity
 
 class WeatherViewModel(application: Application, val weatherRepository: WeatherRepository) : AndroidViewModel(application) {
 
-    private val currentWeatherResource: MutableLiveData<Resource<CurrentWeatherResponse>> = weatherRepository.currentWeather
-    private val forecastWeatherResource: MutableLiveData<Resource<ForecastWeatherResponseWrapper>> = weatherRepository.forecastWeather
-
     val weatherListViewModel: MutableLiveData<WeatherListViewModel> = MutableLiveData()
     val error: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
+    private var city: PickedCity? = null
 
-    init {
+    private var currentWeatherResource: MutableLiveData<Resource<CurrentWeatherResponse>>? = null
+    private var forecastWeatherResource: MutableLiveData<Resource<ForecastWeatherResponseWrapper>>? = null
 
+    private var currentObserver: Observer<Resource<CurrentWeatherResponse>>? = null
+    private var forecastObserver: Observer<Resource<ForecastWeatherResponseWrapper>>? = null
+
+    fun refresh() {
+        city?.let { load(it) } ?: reset()
+    }
+
+    fun reset() {
         weatherListViewModel.value = WeatherListViewModel(getApplication() as Context)
+        error.value = false
+        loading.value = false
+    }
 
-        currentWeatherResource.observeForever {
-            Log.i("8888", it?.data?.toString() ?: "null")
+    fun load(city: PickedCity) {
+        this.city = city
+        reset()
+        currentObserver?.let { currentWeatherResource?.removeObserver(it) }
+        forecastObserver?.let { forecastWeatherResource?.removeObserver(it) }
+
+        weatherRepository.load(city)
+
+        currentWeatherResource = weatherRepository.currentWeather
+        forecastWeatherResource = weatherRepository.forecastWeather
+
+        currentObserver = Observer {
             val tempWeatherListViewModel = weatherListViewModel.value
             tempWeatherListViewModel?.currentWeatherResponse = it?.data
             weatherListViewModel.value = tempWeatherListViewModel
             updateStatus()
         }
 
-        forecastWeatherResource.observeForever {
+        forecastObserver = Observer {
             val tempWeatherListViewModel = weatherListViewModel.value
             tempWeatherListViewModel?.forecastWeatherResponseWrapper = it?.data
             weatherListViewModel.value = tempWeatherListViewModel
             updateStatus()
         }
 
-    }
-    fun load(city: PickedCity) {
-        weatherListViewModel.value = WeatherListViewModel(getApplication() as Context)
-        weatherRepository.load(city)
+        currentObserver?.let { currentWeatherResource?.observeForever(it) }
+        forecastObserver?.let { forecastWeatherResource?.observeForever(it) }
 
     }
 
     private fun updateStatus() {
-        error.value = currentWeatherResource.value is Resource.Error || forecastWeatherResource.value is Resource.Error
-        loading.value = (currentWeatherResource.value is Resource.Loading) || (forecastWeatherResource.value is Resource.Loading)
+        error.value = currentWeatherResource?.value is Resource.Error || forecastWeatherResource?.value is Resource.Error
+        loading.value = (currentWeatherResource?.value is Resource.Loading) || (forecastWeatherResource?.value is Resource.Loading)
     }
 
     class Factory(val application: Application, val weatherRepository: WeatherRepository) : ViewModelProvider.NewInstanceFactory() {

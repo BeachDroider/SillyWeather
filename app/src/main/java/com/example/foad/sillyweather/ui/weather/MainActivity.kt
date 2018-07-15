@@ -101,8 +101,8 @@ class MainActivity : AppCompatActivity() {
             with(place) {
                 PickedCity(
                         name.toString(),
-                        String.format("%.3f", latLng.latitude).toDouble(),
-                        String.format("%.3f", latLng.longitude).toDouble()
+                        String.format("%.2f", latLng.latitude).toDouble(),
+                        String.format("%.2f", latLng.longitude).toDouble()
                 )
             }.apply {
                 pickedCityDao.insert(this)

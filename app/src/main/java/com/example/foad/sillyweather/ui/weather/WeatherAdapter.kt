@@ -36,10 +36,12 @@ class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is CurrentWeatherVH -> {
-                weatherListViewModel?.currentWeatherListViewModel?.let { holder.bind(it) } ?: holder.clear()
+                weatherListViewModel?.currentWeatherListViewModel?.let { holder.bind(it) }
+                        ?: holder.clear()
             }
             is ForecastWeatherVH -> {
-                weatherListViewModel?.forecastWeatherListViewModels?.get(position - 1)?.let { holder.bind(it) } ?: holder.clear()
+                weatherListViewModel?.forecastWeatherListViewModels?.get(position - 1)?.let { holder.bind(it) }
+                        ?: holder.clear()
             }
         }
     }
@@ -54,7 +56,8 @@ class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 iv_current_icon.setImageResource(listViewModel.iconResId)
             }
         }
-        fun clear(){
+
+        fun clear() {
 
             with(itemView) {
                 tv_current_temp.text = ""
@@ -77,7 +80,7 @@ class WeatherAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
         }
 
-        fun clear(){
+        fun clear() {
             with(itemView) {
                 tv_forecast_min.text = ""
                 tv_forecast_max.text = ""
