@@ -2,24 +2,15 @@ package com.example.foad.sillyweather.di
 
 import android.app.Application
 import android.arch.persistence.room.Room
-import android.util.Log
 import com.example.foad.sillyweather.BuildConfig
 import com.example.foad.sillyweather.api.OpenWeatherMapService
-import com.example.foad.sillyweather.data.Coord
-import com.example.foad.sillyweather.data.CurrentWeatherResponse
-import com.example.foad.sillyweather.data.ForecastWeatherResponseWrapper
-import com.example.foad.sillyweather.db.CurrentWeatherResponseDao
-import com.example.foad.sillyweather.db.ForecastWeatherResponseDao
-import com.example.foad.sillyweather.db.PickedCityDao
-import com.example.foad.sillyweather.db.SillyWeatherDb
+import com.example.foad.sillyweather.db.*
 import com.google.gson.*
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.lang.reflect.Type
-import java.math.RoundingMode
-import java.text.DecimalFormat
+
 import javax.inject.Singleton
 
 @Module
@@ -37,41 +28,12 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideGson(currentDeserializer: JsonDeserializer<CurrentWeatherResponse>,
-                    forecastDeserializer: JsonDeserializer<ForecastWeatherResponseWrapper>
+    fun provideGson(
     ): Gson {
         return GsonBuilder()
-                .registerTypeAdapter(CurrentWeatherResponse::class.java, currentDeserializer)
-                .registerTypeAdapter(ForecastWeatherResponseWrapper::class.java, forecastDeserializer)
                 .create()
     }
 
-
-    @Singleton
-    @Provides
-    // server returns no timestamp, so we add it locally to check against db
-    fun provideCurrentDeserializer(): JsonDeserializer<CurrentWeatherResponse> {
-        return object : JsonDeserializer<CurrentWeatherResponse> {
-            override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): CurrentWeatherResponse {
-
-                json?.asJsonObject?.addProperty("timestamp", System.currentTimeMillis())
-                return GsonBuilder().create().fromJson<CurrentWeatherResponse>(json, CurrentWeatherResponse::class.java)
-            }
-        }
-    }
-
-    @Singleton
-    @Provides
-    // server returns no timestamp, so we add it locally to check against db
-    fun provideForecastDeserializer(): JsonDeserializer<ForecastWeatherResponseWrapper> {
-        return object : JsonDeserializer<ForecastWeatherResponseWrapper> {
-            override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): ForecastWeatherResponseWrapper {
-
-                json?.asJsonObject?.addProperty("timestamp", System.currentTimeMillis())
-                return GsonBuilder().create().fromJson<ForecastWeatherResponseWrapper>(json, ForecastWeatherResponseWrapper::class.java)
-            }
-        }
-    }
 
     @Singleton
     @Provides
@@ -84,13 +46,13 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideCurrentWeatherDao(sillyWeatherDb: SillyWeatherDb): CurrentWeatherResponseDao {
+    fun provideCurrentWeatherDao(sillyWeatherDb: SillyWeatherDb): CurrentWeatherDao {
         return sillyWeatherDb.currentWeatherDao()
     }
 
     @Singleton
     @Provides
-    fun provideForecastWeatherDao(sillyWeatherDb: SillyWeatherDb): ForecastWeatherResponseDao {
+    fun provideForecastWeatherDao(sillyWeatherDb: SillyWeatherDb): ForecastWeatherDao {
         return sillyWeatherDb.forecastWeatherDao()
     }
 

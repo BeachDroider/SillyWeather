@@ -5,12 +5,9 @@ import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import com.example.foad.sillyweather.api.OpenWeatherMapService
 import com.example.foad.sillyweather.api.Resource
-import com.example.foad.sillyweather.data.BaseDataClass
-import com.example.foad.sillyweather.data.CurrentWeatherResponse
-import com.example.foad.sillyweather.data.ForecastWeatherResponseWrapper
-import com.example.foad.sillyweather.data.PickedCity
-import com.example.foad.sillyweather.db.CurrentWeatherResponseDao
-import com.example.foad.sillyweather.db.ForecastWeatherResponseDao
+import com.example.foad.sillyweather.data.*
+import com.example.foad.sillyweather.db.CurrentWeatherDao
+import com.example.foad.sillyweather.db.ForecastWeatherDao
 import com.example.foad.sillyweather.util.util
 import kotlinx.coroutines.experimental.*
 import retrofit2.Call
@@ -21,8 +18,9 @@ import javax.inject.Singleton
 class WeatherRepository @Inject constructor(
         val application: Application,
         private val service: OpenWeatherMapService,
-        private val currentWeatherDao: CurrentWeatherResponseDao,
-        private val forecastWeatherDao: ForecastWeatherResponseDao) {
+        private val currentWeatherDao: CurrentWeatherDao,
+        private val forecastWeatherDao: ForecastWeatherDao
+) {
 
     lateinit var currentWeather: MutableLiveData<Resource<CurrentWeatherResponse>>
     lateinit var forecastWeather: MutableLiveData<Resource<ForecastWeatherResponseWrapper>>
@@ -31,40 +29,66 @@ class WeatherRepository @Inject constructor(
 
         currentWeather = MutableLiveData()
         forecastWeather = MutableLiveData()
-        process(city, currentWeather, service.getCurrentWeather(city.lat, city.lng), currentWeatherDao::insert, currentWeatherDao::getCurrentWeather)
-        process(city, forecastWeather, service.getForecastWeather(city.lat, city.lng), forecastWeatherDao::insert, forecastWeatherDao::getForecastWeather)
+        loadCurrent(city)
+        loadForecast(city)
 
     }
 
-    private fun <T> process(city: PickedCity,
-                            livedata: MutableLiveData<Resource<T>>,
-                            call: Call<T?>,
-                            insert: (T) -> Any,
-                            get: (Double, Double) -> T?) {
 
-        fun <T> postError(livedata: MutableLiveData<Resource<T>>, message: String) {
-            livedata.postValue(Resource.Error(null, message))
-        }
+    private fun loadForecast(city: PickedCity){
 
-        livedata.value = Resource.Loading(null)
+        forecastWeather.value = Resource.Loading(null)
         launch(CommonPool) {
-            val initialDbResult = get(city.lat, city.lng)
-            if (util.isCacheValid((initialDbResult as? (BaseDataClass))?.getTimestampForDao())) {
-                livedata.postValue(Resource.Success(initialDbResult))
+            val initialDbResult = forecastWeatherDao.getForecastWeather(city.lat, city.lng)
+            if (util.isCacheValid(initialDbResult?.timeStamp)) {
+                forecastWeather.postValue(Resource.Success(initialDbResult?.data))
             } else {
                 try {
-                    val response = call.execute()
+                    val response = service.getForecastWeather(city.lat, city.lng).execute()
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            insert(it)
+                            forecastWeatherDao.insert(ForecastWeatherDbObj(city.lat, city.lng, System.currentTimeMillis(), it))
                         }
-                        val dbResult = get(city.lat, city.lng)
-                        livedata.postValue(Resource.Success(dbResult))
+                        val dbResult = forecastWeatherDao.getForecastWeather(city.lat, city.lng)
+                        forecastWeather.postValue(Resource.Success(dbResult?.data))
                     } else {
-                        postError(livedata, response.errorBody().toString())
+                        postError(forecastWeather, response.errorBody().toString())
                     }
                 } catch (e: Exception) {
-                    postError(livedata, e.toString())
+                    postError(forecastWeather, e.toString())
+                }
+            }
+        }
+    }
+
+
+    fun <T> postError(livedata: MutableLiveData<Resource<T>>, message: String) {
+        livedata.postValue(Resource.Error(null, message))
+    }
+
+    private fun  loadCurrent(city: PickedCity) {
+
+
+
+        currentWeather.value = Resource.Loading(null)
+        launch(CommonPool) {
+            val initialDbResult = currentWeatherDao.getCurrentWeather(city.lat, city.lng)
+            if (util.isCacheValid(initialDbResult?.timeStamp)) {
+                currentWeather.postValue(Resource.Success(initialDbResult?.data))
+            } else {
+                try {
+                    val response = service.getCurrentWeather(city.lat, city.lng).execute()
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            currentWeatherDao.insert(CurrentWeatherDbObj(city.lat, city.lng, System.currentTimeMillis(), it))
+                        }
+                        val dbResult = currentWeatherDao.getCurrentWeather(city.lat, city.lng)
+                        currentWeather.postValue(Resource.Success(dbResult?.data))
+                    } else {
+                        postError(currentWeather, response.errorBody().toString())
+                    }
+                } catch (e: Exception) {
+                    postError(currentWeather, e.toString())
                 }
             }
         }
