@@ -3,7 +3,7 @@ package com.example.foad.sillyweather.data
 import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Entity
 
-@Entity(tableName = "forecastWeatherResponseWrappers", primaryKeys =["name"])
+@Entity(tableName = "forecastWeatherResponseWrappers", primaryKeys =["lat", "lon"])
 
 data class ForecastWeatherResponseWrapper(
         var timestamp: Long,

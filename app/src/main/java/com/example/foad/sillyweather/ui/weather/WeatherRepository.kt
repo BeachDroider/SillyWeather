@@ -31,17 +31,16 @@ class WeatherRepository @Inject constructor(
 
         currentWeather = MutableLiveData()
         forecastWeather = MutableLiveData()
-        process(city.name, currentWeather, service.getCurrentWeather(city.lat, city.lng), currentWeatherDao::insert, currentWeatherDao::getCurrentWeather)
-        process(city.name, forecastWeather, service.getForecastWeather(city.name), forecastWeatherDao::insert, forecastWeatherDao::getForecastWeather)
+        process(city, currentWeather, service.getCurrentWeather(city.lat, city.lng), currentWeatherDao::insert, currentWeatherDao::getCurrentWeather)
+        process(city, forecastWeather, service.getForecastWeather(city.lat, city.lng), forecastWeatherDao::insert, forecastWeatherDao::getForecastWeather)
 
     }
 
-
-    private fun <T> process(city: String,
+    private fun <T> process(city: PickedCity,
                             livedata: MutableLiveData<Resource<T>>,
                             call: Call<T?>,
                             insert: (T) -> Any,
-                            get: (String) -> T?) {
+                            get: (Double, Double) -> T?) {
 
         fun <T> postError(livedata: MutableLiveData<Resource<T>>, message: String) {
             livedata.postValue(Resource.Error(null, message))
@@ -49,15 +48,18 @@ class WeatherRepository @Inject constructor(
 
         livedata.value = Resource.Loading(null)
         launch(CommonPool) {
-            val initialDbResult = get(city)
+            val initialDbResult = get(city.lat, city.lng)
             if (util.isCacheValid((initialDbResult as? (BaseDataClass))?.getTimestampForDao())) {
                 livedata.postValue(Resource.Success(initialDbResult))
             } else {
                 try {
                     val response = call.execute()
                     if (response.isSuccessful) {
-                        response.body()?.let { insert(it) }
-                        livedata.postValue(Resource.Success(get(city)))
+                        response.body()?.let {
+                            insert(it)
+                        }
+                        val dbResult = get(city.lat, city.lng)
+                        livedata.postValue(Resource.Success(dbResult))
                     } else {
                         postError(livedata, response.errorBody().toString())
                     }
